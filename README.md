@@ -22,6 +22,8 @@
 > ![image](https://user-images.githubusercontent.com/60146868/170139634-e4262e7e-986d-4919-bfa7-b76a9140f4dd.png)
 
 > - Criei o arquivo teste2.txt na máquina Cliente para fins de teste 
-> ![image](https://user-images.githubusercontent.com/60146868/170139775-fb92ac88-dd33-455d-936a-1d3d3153b56d.png)
-
+![image](https://user-images.githubusercontent.com/60146868/170141642-c8f4cb90-7223-449f-bfba-fdfc2f35f356.png)
 > - Ao enviar o arquivo, o cliente será notificado do sucesso do envio e o arquivo será armazenado na máquina virtual.
+![image](https://user-images.githubusercontent.com/60146868/170141519-717ee3c5-1e6d-467d-b885-418622873199.png)
+
+![image](https://user-images.githubusercontent.com/60146868/170141573-83d489c8-318e-4247-ba45-8c9e73d3652b.png)
