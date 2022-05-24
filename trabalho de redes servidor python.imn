@@ -17,55 +17,10 @@ node n1 {
 	custom-config-id service:DHCPClient
 	custom-command DHCPClient
 	config {
-	files=('o_cliente.py', 'O_Cliente.py', )
+	files=('o_cliente.py', )
 	cmdup=('python o_cliente', )
 	cmddown=('killall o_cliente', )
 	cmdval=('pidof o_cliente', )
-	}
-    }
-    custom-config {
-	custom-config-id service:DHCPClient:O_Cliente.py
-	custom-command O_Cliente.py
-	config {
-	import os
-	from socket import *
-	from time import sleep
-	
-	nomeServidor = '192.0.2.21'
-	
-	portaServidor = 12345
-	
-	socketCliente = socket (AF_INET, SOCK_STREAM)
-	
-	socketCliente.connect ((nomeServidor, portaServidor))
-	
-	print'Disponibilize aqui um tratado, acordo ou pacto para debate!' 
-	matricula=raw_input("Digite sua matricula: ")
-	documento=raw_input("Informe o caminho do .pdf do documento: ")
-	
-	if os.path.isfile(documento)==0:
-	    print 'documento nao encontrado'
-	
-	elif os.path.splitext(documento)[1] != '.pdf':
-	    print 'tipo do documento diferente de pdf'
-	else:
-	    socketCliente.send(matricula.encode())
-	    sleep(2)
-	    nomearq= os.path.splitext(os.path.basename(documento))[0]
-	    socketCliente.send(nomearq.encode())
-	    sleep(2)
-	    arq=open(documento,'rb')
-	    dados=arq.read(1024)
-	    while dados:
-	        socketCliente.send(dados)
-	        dados=arq.read(1024)
-	    sleep(2)
-	    socketCliente.send('terminou')
-	    result=socketCliente.recv(1024)
-	    print 'Mensagem do DRI: ', result.decode()
-	    arq.close()
-	socketCliente.close () 
-	
 	}
     }
     custom-config {
@@ -97,13 +52,13 @@ node n1 {
 	    socketCliente.send(nomearq.encode())
 	    sleep(2)
 	    arq=open(documento,'rb')
-	    dados=arq.read(1024)
+	    dados=arq.read(2048)
 	    while dados:
 	        socketCliente.send(dados)
-	        dados=arq.read(1024)
+	        dados=arq.read(2048)
 	    sleep(2)
 	    socketCliente.send('terminou')
-	    result=socketCliente.recv(1024)
+	    result=socketCliente.recv(2048)
 	    print 'Mensagem do Servidor: ', result.decode()
 	    arq.close()
 	socketCliente.close () 
@@ -158,11 +113,11 @@ node n2 {
 	
 	while 1 :
 	    socketConexao, endereco = socketServidor.accept ()
-	    matricula = socketConexao.recv(1024)
-	    nomearq= socketConexao.recv(1024)
+	    matricula = socketConexao.recv(2048)
+	    nomearq= socketConexao.recv(2048)
 	    nome=open('/home/ipv6br/Desktop/'+nomearq+''+matricula+'.txt','wb')
 	    while 1:
-	        arq=socketConexao.recv(1024)
+	        arq=socketConexao.recv(2048)
 	        if arq == 'terminou':
 	            break
 	        nome.write(arq)
