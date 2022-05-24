@@ -1,0 +1,201 @@
+node n1 {
+    type router
+    model PC
+    network-config {
+	hostname Cliente
+	!
+	interface eth0
+	 ip address 192.0.2.20/24
+	 ipv6 address 2001:db8:0::20/64
+	!
+    }
+    canvas c1
+    iconcoords {124.0 180.0}
+    labelcoords {124.0 212.0}
+    interface-peer {eth0 n2}
+    custom-config {
+	custom-config-id service:DHCPClient
+	custom-command DHCPClient
+	config {
+	files=('o_cliente.py', 'O_Cliente.py', )
+	cmdup=('python o_cliente', )
+	cmddown=('killall o_cliente', )
+	cmdval=('pidof o_cliente', )
+	}
+    }
+    custom-config {
+	custom-config-id service:DHCPClient:O_Cliente.py
+	custom-command O_Cliente.py
+	config {
+	import os
+	from socket import *
+	from time import sleep
+	
+	nomeServidor = '192.0.2.21'
+	
+	portaServidor = 12345
+	
+	socketCliente = socket (AF_INET, SOCK_STREAM)
+	
+	socketCliente.connect ((nomeServidor, portaServidor))
+	
+	print'Disponibilize aqui um tratado, acordo ou pacto para debate!' 
+	matricula=raw_input("Digite sua matricula: ")
+	documento=raw_input("Informe o caminho do .pdf do documento: ")
+	
+	if os.path.isfile(documento)==0:
+	    print 'documento nao encontrado'
+	
+	elif os.path.splitext(documento)[1] != '.pdf':
+	    print 'tipo do documento diferente de pdf'
+	else:
+	    socketCliente.send(matricula.encode())
+	    sleep(2)
+	    nomearq= os.path.splitext(os.path.basename(documento))[0]
+	    socketCliente.send(nomearq.encode())
+	    sleep(2)
+	    arq=open(documento,'rb')
+	    dados=arq.read(1024)
+	    while dados:
+	        socketCliente.send(dados)
+	        dados=arq.read(1024)
+	    sleep(2)
+	    socketCliente.send('terminou')
+	    result=socketCliente.recv(1024)
+	    print 'Mensagem do DRI: ', result.decode()
+	    arq.close()
+	socketCliente.close () 
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:DHCPClient:o_cliente.py
+	custom-command o_cliente.py
+	config {
+	import os
+	from socket import *
+	from time import sleep
+	
+	nomeServidor = '192.0.2.21'
+	
+	portaServidor = 12345
+	
+	socketCliente = socket (AF_INET, SOCK_STREAM)
+	
+	socketCliente.connect ((nomeServidor, portaServidor))
+	
+	print'Disponibilize aqui um arquivo.' 
+	matricula=raw_input("Digite sua matricula: ")
+	documento=raw_input("Informe o caminho do documento: ")
+	
+	if os.path.isfile(documento)==0:
+	    print 'documento nao encontrado'
+	else:
+	    socketCliente.send(matricula.encode())
+	    sleep(2)
+	    nomearq= os.path.splitext(os.path.basename(documento))[0]
+	    socketCliente.send(nomearq.encode())
+	    sleep(2)
+	    arq=open(documento,'rb')
+	    dados=arq.read(1024)
+	    while dados:
+	        socketCliente.send(dados)
+	        dados=arq.read(1024)
+	    sleep(2)
+	    socketCliente.send('terminou')
+	    result=socketCliente.recv(1024)
+	    print 'Mensagem do Servidor: ', result.decode()
+	    arq.close()
+	socketCliente.close () 
+	
+	}
+    }
+    services {DefaultRoute DHCPClient}
+}
+
+node n2 {
+    type router
+    model PC
+    network-config {
+	hostname Servidor
+	!
+	interface eth0
+	 ip address 192.0.2.21/24
+	 ipv6 address 2001:db8:0::21/64
+	!
+    }
+    canvas c1
+    iconcoords {747.0 177.0}
+    labelcoords {747.0 209.0}
+    interface-peer {eth0 n1}
+    services {DefaultRoute DHCP}
+    custom-config {
+	custom-config-id service:DHCP
+	custom-command DHCP
+	config {
+	files=('o_servidor.py', )
+	cmdup=('python o_servidor', )
+	cmddown=('killall o_servidor', )
+	cmdval=('pidof o_servidor', )
+	}
+    }
+    custom-config {
+	custom-config-id service:DHCP:o_servidor.py
+	custom-command o_servidor.py
+	config {
+	from socket import *
+	
+	portaServidor = 12345
+	
+	socketServidor = socket (AF_INET, SOCK_STREAM)
+	
+	socketServidor.bind (('192.0.2.21', portaServidor))
+	
+	socketServidor.listen (2)
+	
+	# Python 2
+	print "O servidor esta pronto para receber"
+	
+	while 1 :
+	    socketConexao, endereco = socketServidor.accept ()
+	    matricula = socketConexao.recv(1024)
+	    nomearq= socketConexao.recv(1024)
+	    nome=open('/home/ipv6br/Desktop/'+nomearq+''+matricula+'.txt','wb')
+	    while 1:
+	        arq=socketConexao.recv(1024)
+	        if arq == 'terminou':
+	            break
+	        nome.write(arq)
+	    socketConexao.send ('arquivo recebido com sucesso!'.encode())
+	    nome.close()
+	    socketConexao.close ()
+	
+	}
+    }
+}
+
+link l1 {
+    nodes {n1 n2}
+    bandwidth 0
+}
+
+canvas c1 {
+    name {Canvas1}
+}
+
+option global {
+    interface_names no
+    ip_addresses yes
+    ipv6_addresses yes
+    node_labels yes
+    link_labels yes
+    show_api no
+    background_images no
+    annotations yes
+    grid yes
+    traffic_start 0
+}
+
+option session {
+}
+
